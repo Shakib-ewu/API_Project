@@ -11,8 +11,17 @@ jobs:
         run: |
           curl -o- "https://dl-cli.pstmn.io/install/linux64.sh" | sh
           postman --version  # Verify Postman CLI installation
+      - name: Check POSTMAN_API_KEY secret
+        run: |
+          if [ -z "${{ secrets.POSTMAN_API_KEY }}" ]; then
+            echo "Error: POSTMAN_API_KEY is not set"
+            exit 1
+          else
+            echo "POSTMAN_API_KEY is set"
+          fi
       - name: Login to Postman CLI
-        run: postman login --with-api-key ${{ secrets.POSTMAN_API_KEY }}
+        run: |
+          postman login --with-api-key "${{ secrets.POSTMAN_API_KEY }}"
       - name: Set up environment (Optional)
         run: |
           # If you have any environment setup steps or file dependencies, include them here
@@ -20,4 +29,3 @@ jobs:
       - name: Run API tests
         run: |
           postman collection run "18214630-70c44740-bcdb-47bf-b760-673042ea67e5"
-
