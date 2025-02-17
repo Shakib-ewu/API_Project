@@ -1,35 +1,23 @@
-name: Run Newman API Tests
+name: Automated API tests using Postman CLI
 
-on:
-  push:
-    branches:
-      - main  # Change this if your branch name is different
-  pull_request:
+on: push
 
 jobs:
-  newman-tests:
+  automated-api-tests:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
-
-      - name: Install Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 20
-
-      - name: Install Newman and Reporters
+      - uses: actions/checkout@v4
+      - name: Install Postman CLI
         run: |
-          npm install -g newman newman-reporter-htmlextra
-
-      - name: Run Postman Tests
+          curl -o- "https://dl-cli.pstmn.io/install/linux64.sh" | sh
+          postman --version  # Verify Postman CLI installation
+      - name: Login to Postman CLI
+        run: postman login --with-api-key ${{ secrets.POSTMAN_API_KEY }}
+      - name: Set up environment (Optional)
         run: |
-          newman run "API Testing.postman_collection.json" \
-          -r cli,htmlextra --reporter-htmlextra-export "newman-report.html"
+          # If you have any environment setup steps or file dependencies, include them here
+          echo "Environment setup complete"
+      - name: Run API tests
+        run: |
+          postman collection run "18214630-70c44740-bcdb-47bf-b760-673042ea67e5"
 
-      - name: Upload HTML Report as Artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: newman-report
-          path: newman-report.html
